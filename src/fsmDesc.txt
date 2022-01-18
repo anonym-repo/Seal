@@ -1,0 +1,16 @@
+NUMB 5
+NODE START FALSE 2
+NODE Subset_Selection FALSE 1
+NODE Counted_Data FALSE 1
+NODE User_function_result FALSE 1
+NODE Model_Training FALSE 1
+EDGE START Subset_Selection subset_selection subset Need_Raw_Data flase parameter_set_Specific_Data param all_these listkv-string param any_these listkv-string action_type data_selection
+EDGE Subset_Selection Counted_Data act_22_count fw-count Need_Raw_Data flase action_type counting
+EDGE Counted_Data Counted_Data fw_publish_data Read Need_Raw_Data flase action_type publish_data
+EDGE Counted_Data Subset_Selection Go-To Go-To Need_Raw_Data flase action_type go-to
+EDGE Subset_Selection User_function_result fw_User_Function fw-Run_user_Function Need_Raw_Data flase action_type user_function
+EDGE User_function_result Subset_Selection Go-To Go-To Need_Raw_Data flase action_type go-to
+EDGE Subset_Selection Model_Training lr_learn learn Need_Raw_Data flase parameter_set_Data_Split param train_test_split float param rand integer param C float action_type lr_learn
+EDGE Model_Training Subset_Selection Go-To Go-To Need_Raw_Data flase action_type go-to
+STRT START
+END
