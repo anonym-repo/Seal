@@ -47,6 +47,7 @@ class action:
     need_raw_data: bool
     check_params_func: str
     action_type: str
+    required_budget: int
 
     def __init__(self, to_state, name, alias, needRawData, check_params_func, parameters, action_type):
         self.to_state = to_state
@@ -107,9 +108,13 @@ class action:
             raise Exception("Not such a parameter set")
         params_set = self.parameters[params_set_name]
         return len(params_set)
+ 
     def get_action_type(self):
         return self.action_type
 
+    def get_required_budget(self):
+		return self.required_budget
+		
 Actions = List[action]
 
 class state:
@@ -254,6 +259,7 @@ class fsm:
            token_length = len(tokens)
            token_index = 0
            action_type = None
+           required_budget = 0
            while tokens[0] == "EDGE":
                token_index += 1
                act_from_state = tokens[token_index]
@@ -285,19 +291,21 @@ class fsm:
                    check_params_func = tokens[token_index + 1]
                    token_index += 2
                    
-               #mock parameters for an action. should be replaced later
                
                action_params_set = {}
                set_params = list()
                params_set_name = None
+               
                while token_index < token_length:
                     params_set_name == None
                     token = tokens[token_index]
+                    
                     if token.startswith("parameter_set"):                      
                         params_set_name = token
                         set_params = []
                         token_index += 1
                         token = tokens[token_index]
+                        
                         while token == "param" and token_index < token_length:
                             param_name_token = tokens[token_index + 1]
                             param_value_token = tokens[token_index + 2]
@@ -305,6 +313,7 @@ class fsm:
                             tmp_param = param( param_name_token, param_value_token)
                             set_params.append(tmp_param)
                             token = tokens[token_index]
+                        
                         if not set_params:
                             raise Exception("[Exception] parameter_set has no parameter")
                         else:
@@ -314,11 +323,16 @@ class fsm:
                     elif token == "action_type":
                         action_type = tokens[token_index + 1]
                         token_index += 2
+                    
+                    elif token == "required_budget":
+                        required_budget = int(tokens[token_index + 1])
+                        token_index += 2
+                        
                     else:
                         raise Exception("[Exception] unknow input token name - token is: ", token)
 
                new_action = action(act_to_state, act_name, alias, act_need_raw_data,
-                                   check_params_func, action_params_set, action_type)
+                                   check_params_func, action_params_set, action_type, required_budget)
                
              
                self.states[index].add_action(new_action)

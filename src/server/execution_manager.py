@@ -7,7 +7,7 @@ import algorithms.fw_functions as fwFun
 from server import server
 from server.models import StateMetadata
 import server.helper as hlp
-import server.file_manager as fm
+
 from server.taintWrappers import *
 from flask import session
 import cProfile, pstats, io
@@ -47,7 +47,7 @@ def execute_user_function(fd_in, fd_out, act_name, do_sandboxing=True):
           
 def entry(dispatcher_conn, params, user_id, current_state,
           to_state, action_name, action_type,
-          need_raw_data, do_sandboxing=True):
+          need_raw_data, fds_in, fds_out, do_sandboxing=True):
     tmp_to_states = str(to_state)
     if current_state == to_state:
         tmp_to_states += "_tmp" 
@@ -59,8 +59,6 @@ def entry(dispatcher_conn, params, user_id, current_state,
             x = 10
         elif (action_name != 'None'):
             if action_type == 'user_function':
-                fds_in = fm.prepare_input_files(user_id, current_state, need_raw_data, False)
-                fds_out = fm.prepare_output_file(user_id, tmp_to_states)
                 execute_user_function( fds_in['input'] , fds_out['output'], action_name, do_sandboxing)
                 dispatcher_conn.send("Done")
                 dispatcher_conn.send("")
@@ -71,10 +69,8 @@ def entry(dispatcher_conn, params, user_id, current_state,
             else:
                 metadata = []
                 if action_name.startswith('fw_'):
-                    fds_in = fm.prepare_input_files(user_id, current_state, need_raw_data, False)
                     action_to_call = getattr(fwFun, action_name)
                 else:
-                   fds_in = fm.prepare_input_files(user_id, current_state, need_raw_data, True)
                    action_to_call = getattr(al, action_name)
                 fds_out = fm.prepare_output_file(user_id, tmp_to_states)
 
