@@ -1,1 +1,1 @@
-SEAL
+SEAL Framework
